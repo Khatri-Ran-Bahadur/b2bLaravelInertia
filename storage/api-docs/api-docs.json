@@ -1,0 +1,735 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Authentication API",
+        "description": "API documentation for authentication",
+        "contact": {
+            "email": "your-email@example.com"
+        },
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/auth/send-otp": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Send OTP to user's phone Nikita SMS",
+                "description": "Sends an OTP to the provided phone number for authentication purposes.",
+                "operationId": "31e6ecd5b232670e3cc6c2543841a5a0",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "phone"
+                                ],
+                                "properties": {
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "+996123456789"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OTP sent successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "otpsend": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Send Successfully"
+                                        },
+                                        "phone": {
+                                            "type": "string",
+                                            "example": "+996123456789"
+                                        },
+                                        "otp_token": {
+                                            "type": "string",
+                                            "example": "testtoken"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "phone": [
+                                                    "The phone field is required."
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/auth/verify-otp": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Verify the OTP code",
+                "description": "Verifies the OTP code sent to the user's phone number.",
+                "operationId": "8d8637fd7613b602407f1dacdaedd855",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "phone",
+                                    "otp_token",
+                                    "otp_code"
+                                ],
+                                "properties": {
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "+996123456789"
+                                    },
+                                    "otp_token": {
+                                        "type": "string",
+                                        "example": "testtoken"
+                                    },
+                                    "otp_code": {
+                                        "type": "string",
+                                        "example": "1234"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "oneOf": [
+                                        {
+                                            "properties": {
+                                                "otp": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "type": {
+                                                    "type": "string",
+                                                    "example": "success"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Otp verified and login"
+                                                },
+                                                "token": {
+                                                    "type": "string",
+                                                    "example": "eyJ0eXAiOiJKV1QiLCJhbGci..."
+                                                },
+                                                "user": {
+                                                    "$ref": "#/components/schemas/UserResource"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        {
+                                            "properties": {
+                                                "otp": {
+                                                    "type": "boolean",
+                                                    "example": false
+                                                },
+                                                "type": {
+                                                    "type": "string",
+                                                    "example": "error"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "example": "Invalid OTP code"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "phone": [
+                                                    "The phone field is required."
+                                                ],
+                                                "otp_code": [
+                                                    "The otp code must be 4 digits."
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/info": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get authenticated user info",
+                "operationId": "getUserInfo",
+                "responses": {
+                    "200": {
+                        "description": "User information retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User information retrieved successfully"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/User"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            }
+        },
+        "/api/users/fcm-token-update": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Update Firebase Cloud Messaging (FCM) token",
+                "description": "Updates the FCM token and optionally the Firebase ID for the authenticated user.",
+                "operationId": "updateFcmToken",
+                "requestBody": {
+                    "description": "FCM token update data",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "fcm_token": {
+                                        "type": "string",
+                                        "example": "your_fcm_token_here"
+                                    },
+                                    "firebase_id": {
+                                        "type": "string",
+                                        "example": "your_firebase_id_here"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "FCM token updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "FCM token updated successfully."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input data"
+                    },
+                    "401": {
+                        "description": "Unauthorized access, user not authenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            }
+        },
+        "/api/users/update": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Update user profile information",
+                "description": "Allows the authenticated user to update their profile details, including name, email, and phone number.",
+                "operationId": "updateUserProfile",
+                "requestBody": {
+                    "description": "User profile update data",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "john.doe@example.com"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "+1234567890"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Profile updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Profile updated successfully."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input data"
+                    },
+                    "401": {
+                        "description": "Unauthorized access, user not authenticated"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            }
+        },
+        "/api/users/update-image": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Update user profile image",
+                "description": "Allows the authenticated user to update their profile image.",
+                "operationId": "updateUserProfileImage",
+                "requestBody": {
+                    "description": "Profile image file",
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "image": {
+                                        "description": "Profile image file",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Profile image updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Profile image updated successfully."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid image file"
+                    },
+                    "401": {
+                        "description": "Unauthorized access, user not authenticated"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            }
+        },
+        "/api/users/change-password": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Change user password",
+                "description": "Allows the authenticated user to change their password.",
+                "operationId": "changeUserPassword",
+                "requestBody": {
+                    "description": "New password details",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "password"
+                                ],
+                                "properties": {
+                                    "password": {
+                                        "description": "New password",
+                                        "type": "string",
+                                        "format": "password"
+                                    },
+                                    "firebase_id": {
+                                        "description": "Firebase ID (optional)",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Password changed successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Password changed successfully."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid password format"
+                    },
+                    "401": {
+                        "description": "Unauthorized access, user not authenticated"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            }
+        },
+        "/api/users/delete": {
+            "delete": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Delete user account",
+                "description": "Allows the authenticated user to delete their account.",
+                "operationId": "deleteUserAccount",
+                "responses": {
+                    "200": {
+                        "description": "Account deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Account deleted successfully."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized access, user not authenticated"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "UserResource": {
+                "title": "User Resource",
+                "description": "Represents a user in the system",
+                "properties": {
+                    "id": {
+                        "description": "The unique identifier of the user",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "description": "The name of the user",
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "email": {
+                        "description": "The email address of the user",
+                        "type": "string",
+                        "example": "john.doe@example.com"
+                    },
+                    "phone": {
+                        "description": "The phone number of the user",
+                        "type": "string",
+                        "example": "+996123456789"
+                    },
+                    "user_role": {
+                        "description": "The role assigned to the user",
+                        "type": "string",
+                        "example": "admin"
+                    }
+                },
+                "type": "object"
+            },
+            "Company": {
+                "title": "Company",
+                "description": "Company entity",
+                "properties": {
+                    "name": {
+                        "description": "Company name",
+                        "type": "string",
+                        "example": "TechBiz LLC"
+                    },
+                    "tin_number": {
+                        "description": "Tax Identification Number",
+                        "type": "string",
+                        "example": "123456789",
+                        "nullable": true
+                    },
+                    "logo": {
+                        "description": "Path to company logo",
+                        "type": "string",
+                        "example": "uploads/logos/company-logo.png",
+                        "nullable": true
+                    },
+                    "banner": {
+                        "description": "Path to banner image",
+                        "type": "string",
+                        "example": "uploads/banners/banner.jpg",
+                        "nullable": true
+                    },
+                    "phone": {
+                        "description": "Contact phone number",
+                        "type": "string",
+                        "example": "+996700123456",
+                        "nullable": true
+                    },
+                    "email": {
+                        "description": "Contact email",
+                        "type": "string",
+                        "example": "info@techbiz.com",
+                        "nullable": true
+                    },
+                    "address": {
+                        "description": "Company address",
+                        "type": "string",
+                        "example": "Bishkek, Kyrgyzstan",
+                        "nullable": true
+                    },
+                    "okpo": {
+                        "description": "OKPO code",
+                        "type": "string",
+                        "example": "987654321",
+                        "nullable": true
+                    },
+                    "search_tags": {
+                        "description": "Comma-separated searchable tags",
+                        "type": "string",
+                        "example": "IT, Tech, Services",
+                        "nullable": true
+                    },
+                    "description": {
+                        "description": "Company description",
+                        "type": "string",
+                        "example": "We provide IT services for small businesses.",
+                        "nullable": true
+                    },
+                    "verification_status": {
+                        "description": "Verification status of the company",
+                        "type": "string",
+                        "enum": [
+                            "verified",
+                            "pending",
+                            "rejected"
+                        ],
+                        "example": "pending"
+                    }
+                },
+                "type": "object"
+            },
+            "User": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "john@example.com"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-01-01T00:00:00Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-01-01T00:00:00Z"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "passport": {
+                "type": "apiKey",
+                "description": "Laravel passport oauth2 security. Note= Add before token Bearer ",
+                "name": "Authorization",
+                "in": "header",
+                "scheme": "http",
+                "flows": {
+                    "password": {
+                        "authorizationUrl": "http://b2b.test/oauth/authorize",
+                        "tokenUrl": "http://b2b.test/oauth/token",
+                        "refreshUrl": "http://b2b.test/token/refresh",
+                        "scopes": []
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Authentication",
+            "description": "Authentication"
+        },
+        {
+            "name": "User",
+            "description": "User"
+        }
+    ],
+    "security": [
+        {
+            "passport": []
+        }
+    ]
+}
