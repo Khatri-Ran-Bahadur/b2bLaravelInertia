@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Helpers\ImageUploader;
 use App\Http\Requests\ProductStoreRequest;
+use App\Http\Requests\ProductUpdateRequest;
 use App\Http\Requests\ProductVariationTypeStore;
 use App\Http\Resources\ProductListResource;
 use App\Http\Resources\CategoryListResource;
@@ -21,6 +22,7 @@ use App\Services\ProductService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
@@ -91,17 +93,34 @@ class ProductController extends ApiController
     {
         $validated = $request->validated();
 
+        // Create product with validated data
         $product = Product::create([
             'name' => $validated['name'],
+            'brand' => $validated['brand'],
             'description' => $validated['description'],
             'company_id' => $validated['company_id'],
             'category_id' => $validated['category_id'],
-            'price' => $validated['price'],
             'status' => $validated['status'],
             'quantity' => $validated['quantity'],
-            'created_by' => auth()->id(),
-            'updated_by' => auth()->id(),
+            'is_available' => $validated['is_available'],
+            'dimention' => $validated['dimention'],
+            'weight' => $validated['weight'],
+            'country_of_origin' => $validated['country_of_origin'],
+            'search_keywords' => $validated['search_keywords'],
+            'material' => $validated['material'],
+            'created_by' => Auth::id(),
+            'updated_by' => Auth::id(),
         ]);
+
+        // Handle search_keywords_2 array and convert to string for better search
+        if (!empty($validated['search_keywords_2'])) {
+            $keywords = is_array($validated['search_keywords_2'])
+                ? implode(',', $validated['search_keywords_2'])
+                : $validated['search_keywords_2'];
+
+            $product->search_keywords_2 = $keywords;
+            $product->save();
+        }
 
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
@@ -110,6 +129,8 @@ class ProductController extends ApiController
                     ->toMediaCollection('images');
             }
         }
+
+
 
         return $this->detailRespond(
             new ProductResource($product)
@@ -155,10 +176,32 @@ class ProductController extends ApiController
      * @param Product $product
      * @return JsonResponse
      */
-    public function update(Request $request, Product $product): JsonResponse
+    public function update(ProductUpdateRequest $request, Product $product): JsonResponse
     {
         // Validate and update product logic here
-        // ...
+        $product->update([
+            'name' => $request->name,
+            'brand' => $request->brand,
+            'description' => $request->description,
+            'category_id' => $request->category_id,
+            'status' => $request->status,
+            'quantity' => $request->quantity,
+            'is_available' => $request->is_available,
+            'dimention' => $request->dimention,
+            'weight' => $request->weight,
+            'country_of_origin' => $request->country_of_origin,
+            'search_keywords' => $request->search_keywords,
+            'search_keywords_2' => $request->search_keywords_2,
+            'material' => $request->material,
+        ]);
+
+        if ($request->hasFile('images')) {
+            // Upload new images
+            foreach ($request->file('images') as $image) {
+                $product->addMedia($image)
+                    ->toMediaCollection('images');
+            }
+        }
         return $this->respondSuccess(
             new ProductResource($product)
         );
@@ -244,7 +287,12 @@ class ProductController extends ApiController
         return response()->json(['message' => 'Variation types and options saved successfully.']);
     }
 
-
+    /**
+     * Get product variations
+     *
+     * @param Product $product
+     * @return JsonResponse
+     */
     public function getProductVariations(Product $product)
     {
         $variations = $product->variations->toArray();
@@ -255,10 +303,13 @@ class ProductController extends ApiController
         ]);
     }
 
-
-
-
-
+    /**
+     * Update product variations
+     *
+     * @param Request $request
+     * @param Product $product
+     * @return JsonResponse
+     */
     public function updateProductVariations(Request $request, Product $product)
     {
         // Validate incoming request data

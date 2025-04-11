@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\TenderStatusEnum;
+use App\Enums\TenderActiveStatusEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -19,11 +20,14 @@ return new class extends Migration
             $table->string('title');
             $table->longText('description');
             $table->string('location')->nullable();
-            $table->double('budget', 20, 2)->default(0);
-            $table->dateTime('start_date');
-            $table->dateTime('end_date');
+            $table->double('budget_from', 20, 2)->default(0);
+            $table->double('budget_to', 20, 2)->default(0);
+            $table->string('phone')->nullable();
+            $table->string('email')->nullable();
             $table->enum('status', array_column(TenderStatusEnum::cases(), 'value'))
                 ->default(TenderStatusEnum::Open->value);
+            $table->enum('active_status', array_column(TenderActiveStatusEnum::cases(), 'value'))
+                ->default(TenderActiveStatusEnum::Active->value);
             $table->timestamps();
         });
     }

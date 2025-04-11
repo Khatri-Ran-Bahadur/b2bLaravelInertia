@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Api;
 
+use App\Http\Resources\DocumentResource;
 use App\Http\Resources\UserRelationalReosurce;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -28,8 +29,8 @@ class CompanyDetailResource extends JsonResource
             'verification_status' => $this->verification_status,
             'tin_number' => (string) $this->tin_number,
             'created_at' => $this->created_at,
-            'created_at' => $this->created_at->toDateTimeString(),
             'owner' => $owner ? new UserRelationalReosurce($owner) : new stdClass,
+            'documents' => $this->documents ? DocumentResource::collection($this->documents) : [],
         ];
     }
 }

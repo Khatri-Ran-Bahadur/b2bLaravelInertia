@@ -4,7 +4,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { ExtendedNavItem, type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { Building2, Contact2Icon, DiamondIcon, LayoutGrid, ListIcon, TentTreeIcon, Users } from 'lucide-react';
+import { Building2, Contact2Icon, LayoutGrid, ListIcon, TentTreeIcon, Users } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: ExtendedNavItem[] = [
@@ -44,21 +44,9 @@ const mainNavItems: ExtendedNavItem[] = [
         icon: Contact2Icon,
     },
     {
-        title: 'Products',
-        icon: DiamondIcon,
-        href: '#', // Placeholder
-        submenus: [
-            {
-                title: 'Products',
-                href: '/admin/products',
-                icon: DiamondIcon,
-            },
-            {
-                title: 'Categories',
-                href: '/admin/categories',
-                icon: ListIcon,
-            },
-        ],
+        title: 'Categories',
+        icon: ListIcon,
+        href: '/admin/categories', // Placeholder
     },
 ];
 

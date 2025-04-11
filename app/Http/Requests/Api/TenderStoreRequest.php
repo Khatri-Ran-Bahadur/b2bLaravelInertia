@@ -21,15 +21,23 @@ class TenderStoreRequest extends FormRequest
      */
     public function rules(): array
     {
+        
         return [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'company_id' => 'required|exists:companies,id',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after:start_date',
-            'budget' => 'required|numeric|min:0',
+            'budget_from' => 'required|numeric|min:0',
+            'budget_to' => 'required|numeric|min:0',
+            'phone' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
             'location' => 'required|string|max:255',
             'tender_category_id' => 'required|exists:tender_categories,id',
+            'tender_products' => 'required|array',
+            'tender_products.*.product_name' => 'required|string|max:255',
+            'tender_products.*.quantity' => 'required|numeric|min:0',
+            'tender_products.*.unit' => 'required|string|max:255',
+            'images' => 'required|array',
+            'images.*' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ];
     }
 }

@@ -22,6 +22,7 @@ return new class extends Migration
             $table->foreignId('company_id')->index()->constrained('companies');
             $table->foreignId('category_id')->index()->constrained('categories');
             $table->string('status')->index();
+            $table->double('price', 20, 2)->default(0);
             $table->string('quantity')->nullable();
             $table->boolean('is_available')->default(0);
             $table->string('dimention')->nullable();

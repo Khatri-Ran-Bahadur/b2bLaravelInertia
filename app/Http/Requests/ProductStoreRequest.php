@@ -28,6 +28,7 @@ class ProductStoreRequest extends FormRequest
             'company_id' => 'required|exists:companies,id',
             'category_id' => 'required|exists:categories,id',
             'status' => 'required|string|in:draft,published,archived',
+            'price' => 'required|numeric|min:0',
             'quantity' => 'nullable|numeric|min:0',
             'is_available' => 'boolean',
             'dimention' => 'nullable|string|max:255',

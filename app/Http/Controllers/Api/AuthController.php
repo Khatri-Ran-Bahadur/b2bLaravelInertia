@@ -25,7 +25,7 @@ class AuthController extends ApiController
 
     protected $letters = [];
     protected $auth;
-    public $apiKey = "";
+    public $apiKey = "3bffb7d64391fee6d1d47d3644a4be0c";
     public $sendOtpUrl = "https://smspro.nikita.kg/api/otp/send";
     public $verifyOtpUrl = "https://smspro.nikita.kg/api/otp/verify";
     public $test_number = '+996123456789,+996987654321';

@@ -1,8 +1,13 @@
+import CompanyDetails from '@/components/Company/CompanyDetails';
+import CompanyDocuments from '@/components/Company/CompanyDocuments';
+import CompanyProducts from '@/components/Company/CompanyProducts';
+import CompanyReviews from '@/components/Company/CompanyReviews';
+import CompanyTenders from '@/components/Company/CompanyTenders';
 import AppLayout from '@/layouts/app-layout';
 import { Company, type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 import { useLaravelReactI18n } from 'laravel-react-i18n';
-import { ArrowLeft, Building2, Calendar, CheckCircle, FileText, Phone, User, XCircle } from 'lucide-react';
+import { ArrowLeft, Building2 } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -19,101 +24,68 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Show({ company }: { company: Company }) {
+interface ShowProps {
+    company: Company;
+    activeTab: 'details' | 'products' | 'tenders' | 'documents' | 'reviews';
+}
+
+export default function Show({ company, activeTab }: ShowProps) {
     const { t } = useLaravelReactI18n();
+
+    const tabs = [
+        { id: 'details', label: 'Details', href: route('admin.companies.show', company.id) },
+        { id: 'products', label: 'Products', href: route('admin.companies.products', company.id) },
+        { id: 'tenders', label: 'Tenders', href: route('admin.companies.tenders', company.id) },
+        { id: 'documents', label: 'Documents', href: route('admin.companies.documents', company.id) },
+        { id: 'reviews', label: 'Reviews', href: route('admin.companies.reviews', company.id) },
+    ];
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`${company.name} - Details`} />
             <div className="py-6">
-                <div className="mx-auto rounded-lg bg-white shadow-sm">
+                <div className="mx-auto rounded-lg bg-white shadow-sm dark:bg-gray-800">
                     <div className="p-6">
-                        <div className="mb-6 flex items-center justify-between">
-                            <h1 className="flex items-center text-2xl font-semibold">
-                                <Building2 className="mr-2" size={24} />
+                        <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                            <h1 className="mb-4 flex items-center text-2xl font-semibold text-gray-900 sm:mb-0 dark:text-white">
+                                <Building2 className="mr-2 text-blue-600 dark:text-blue-400" size={24} />
                                 {t('Company Details')}
                             </h1>
-                            <Link href={route('admin.companies.index')} className="flex items-center text-gray-600 hover:text-gray-900">
+                            <Link
+                                href={route('admin.companies.index')}
+                                className="flex items-center text-gray-600 transition-colors duration-200 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
+                            >
                                 <ArrowLeft size={16} className="mr-1" />
                                 {t('Back to Companies')}
                             </Link>
                         </div>
 
-                        <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
-                            <div className="rounded-lg bg-gray-50 p-4">
-                                <h2 className="mb-4 text-lg font-medium">{t('Basic Information')}</h2>
-                                <div className="space-y-3">
-                                    <div className="flex items-start">
-                                        <Building2 size={18} className="mt-1 mr-2 text-gray-500" />
-                                        <div>
-                                            <p className="text-sm text-gray-500">{t('Company Name')}</p>
-                                            <p className="font-medium">{company.name}</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-start">
-                                        <FileText size={18} className="mt-1 mr-2 text-gray-500" />
-                                        <div>
-                                            <p className="text-sm text-gray-500">{t('TIN Number')}</p>
-                                            <p className="font-medium">{company.tin_number}</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-start">
-                                        <Phone size={18} className="mt-1 mr-2 text-gray-500" />
-                                        <div>
-                                            <p className="text-sm text-gray-500">{t('Phone Number')}</p>
-                                            <p className="font-medium">{company.phone}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="rounded-lg bg-gray-50 p-4">
-                                <h2 className="mb-4 text-lg font-medium">{t('Additional Details')}</h2>
-                                <div className="space-y-3">
-                                    <div className="flex items-start">
-                                        <User size={18} className="mt-1 mr-2 text-gray-500" />
-                                        <div>
-                                            <p className="text-sm text-gray-500">{t('Owner')}</p>
-                                            <p className="font-medium">{company.owner?.name}</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-start">
-                                        {company.verification_status === 'verified' ? (
-                                            <CheckCircle size={18} className="mt-1 mr-2 text-green-500" />
-                                        ) : (
-                                            <XCircle size={18} className="mt-1 mr-2 text-red-500" />
-                                        )}
-                                        <div>
-                                            <p className="text-sm text-gray-500">Verification Status</p>
-                                            <p
-                                                className={`font-medium ${company.verification_status === 'verified' ? 'text-green-600' : 'text-red-600'}`}
-                                            >
-                                                {company.verification_status.charAt(0).toUpperCase() + company.verification_status.slice(1)}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-start">
-                                        <Calendar size={18} className="mt-1 mr-2 text-gray-500" />
-                                        <div>
-                                            <p className="text-sm text-gray-500">Created On</p>
-                                            <p className="font-medium">
-                                                {new Date(company.created_at).toLocaleDateString('en-US', {
-                                                    year: 'numeric',
-                                                    month: 'long',
-                                                    day: 'numeric',
-                                                })}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        {/* Tabs */}
+                        <div className="mb-6 border-b border-gray-200 dark:border-gray-700">
+                            <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+                                {tabs.map((tab) => (
+                                    <Link
+                                        key={tab.id}
+                                        href={tab.href}
+                                        className={`border-b-2 px-1 py-4 text-sm font-medium whitespace-nowrap ${
+                                            activeTab === tab.id
+                                                ? 'border-blue-500 text-blue-600 dark:border-blue-400 dark:text-blue-400'
+                                                : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:text-gray-300'
+                                        }`}
+                                    >
+                                        {tab.label}
+                                    </Link>
+                                ))}
+                            </nav>
                         </div>
 
-                        {/* You can add more sections here like company employees, transactions, etc. */}
-                        <div className="rounded-lg bg-gray-50 p-4">
-                            <h2 className="mb-4 text-lg font-medium">Company Users</h2>
-                            {/* If you have company users data, you can map through them here */}
-                            <p className="text-gray-500">No users found for this company.</p>
-                            {/* Replace with actual user data if available */}
+                        {/* Tab Content */}
+                        <div className="mt-6">
+                            {activeTab === 'details' && <CompanyDetails company={company} />}
+                            {activeTab === 'products' && <CompanyProducts company={company} />}
+                            {activeTab === 'tenders' && <CompanyTenders company={company} />}
+                            {activeTab === 'documents' && <CompanyDocuments company={company} />}
+                            {activeTab === 'reviews' && <CompanyReviews company={company} />}
                         </div>
                     </div>
                 </div>

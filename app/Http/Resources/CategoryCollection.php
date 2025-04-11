@@ -7,6 +7,7 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class CategoryCollection extends ResourceCollection
 {
+    public static $wrap = false;
     /**
      * Transform the resource collection into an array.
      *

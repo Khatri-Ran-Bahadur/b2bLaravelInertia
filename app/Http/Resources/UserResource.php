@@ -20,6 +20,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  */
 class UserResource extends JsonResource
 {
+    public static $wrap = null;
     /**
      * Transform the resource into an array.
      *
@@ -30,11 +31,19 @@ class UserResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name ?? '',
+            'first_name' => $this->first_name ?? '',
+            'last_name' => $this->last_name ?? '',
+            'username' => $this->username ?? '',
             'email' => $this->email ?? '',
             'phone' => $this->phone ?? '',
             'user_role' => $this->user_role,
             "status" => $this->status,
             'image' => $this->image ? asset($this->image) : '',
+            'fcm_token' => $this->fcm_token ?? '',
+            'firebase_id' => $this->firebase_id ?? '',
+            'google_id' => $this->google_id ?? '',
+            'apple_id' => $this->apple_id ?? '',
+
         ];
     }
 }

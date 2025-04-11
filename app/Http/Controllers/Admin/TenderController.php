@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Api\TenderDetailResource;
+use App\Http\Resources\Tender\TenderDetailResource;
 use App\Models\Company;
 use App\Models\Tender;
 use App\Models\TenderCategory;
@@ -31,8 +31,10 @@ class TenderController extends Controller
             'tenders.id',
             'tenders.title',
             'tenders.description',
-            'tenders.start_date',
-            'tenders.end_date',
+            'tenders.budget_from',
+            'tenders.budget_to',
+            'tenders.phone',
+            'tenders.active_status',
             'tenders.created_at',
             'companies.name as company_name'
         )
@@ -61,7 +63,7 @@ class TenderController extends Controller
             ->withQueryString();
 
         $tenderCategories = TenderCategory::select('id', 'name')->get();
-        $companies = Company::select('id', 'name')->get();
+        $companies = Company::select('id', 'name', 'phone')->get();
 
         return Inertia::render('Admin/Tender/Index', [
             'tenders' => $tenders,
@@ -92,9 +94,25 @@ class TenderController extends Controller
      */
     public function show(Tender $tender): Response
     {
-        $tender->load(['owner']);
+        $tender->load([
+            'company' => function ($query) {
+                $query->select('companies.id', 'companies.name', 'companies.email', 'companies.phone', 'companies.tin_number');
+            },
+            'company.owner' => function ($query) {
+                $query->select('users.id', 'users.first_name', 'users.last_name', 'users.email', 'users.phone', 'users.image')
+                    ->where('company_users.role', 'owner');
+            },
+            'tenderCategory' => function ($query) {
+                $query->select('tender_categories.id', 'tender_categories.name', 'tender_categories.slug');
+            },
+            'tenderProducts' => function ($query) {
+                $query->select('tender_products.id', 'tender_products.tender_id', 'tender_products.product_name', 'tender_products.quantity', 'tender_products.unit');
+            },
+            'media'
+        ]);
+
         return Inertia::render('Admin/Tender/Show', [
-            'tender' => new TenderDetailResource($tender),
+            'tender' => TenderDetailResource::make($tender),
         ]);
     }
 

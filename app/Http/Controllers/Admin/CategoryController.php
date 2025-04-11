@@ -69,7 +69,7 @@ class CategoryController extends Controller
         });
 
 
-        return Inertia::render('Admin/Product/Category/Index', [
+        return Inertia::render('Admin/Category/Index', [
             'categories' => CustomPaginationHelper::data($categories),
             'filters' => [
                 'search' => $search,
@@ -98,7 +98,7 @@ class CategoryController extends Controller
         $categories = Category::with('descendants')->isParent()->get();
         $flattenedCategories = $this->flattenCategories($categories);
 
-        return Inertia::render('Admin/Product/Category/Create', [
+        return Inertia::render('Admin/Category/Create', [
             'categories' => $flattenedCategories,
         ]);
     }
@@ -136,7 +136,7 @@ class CategoryController extends Controller
         $flattenedCategories = $this->flattenCategories($categories);
         $category->append('image_url');
 
-        return Inertia::render('Admin/Product/Category/Edit', [
+        return Inertia::render('Admin/Category/Edit', [
             'category' => $category,
             'categories' => $flattenedCategories,
         ]);

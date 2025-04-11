@@ -11,6 +11,18 @@ use Inertia\Inertia;
 
 Route::middleware(['auth', AdminCheckMiddleware::class])->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
+
+        // Company routes
+        Route::controller(CompanyController::class)->group(function () {
+            Route::prefix('companies')->name('companies.')->group(function () {
+                Route::get('/{company}/products', 'products')->name('products');
+                Route::get('/{company}/tenders', 'tenders')->name('tenders');
+                Route::get('/{company}/documents', 'documents')->name('documents');
+                Route::get('/{company}/reviews', 'reviews')->name('reviews');
+            });
+        });
+
+
         Route::resources([
             'users' => UserController::class,
             'companies' => CompanyController::class,

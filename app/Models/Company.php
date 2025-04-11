@@ -45,6 +45,11 @@ class Company extends Model
         return $this->hasMany(Tender::class);
     }
 
+    public function products(): HasMany
+    {
+        return $this->hasMany(Product::class);
+    }
+
 
 
     public function reviews(): HasMany

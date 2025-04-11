@@ -29,9 +29,10 @@ export default function Index({ tenders }: { tenders: Tender[] }) {
             },
         },
         { key: 'title', label: 'Title', sortable: true },
-        { key: 'start_date', label: 'Start Date', type: 'date2', sortable: true },
-        { key: 'end_date', label: 'End Date', type: 'date2', sortable: true },
-        { key: 'company_name', label: 'Company Name', sortable: false },
+        { key: 'budget_from', label: 'Budget From', type: 'number', sortable: true },
+        { key: 'budget_to', label: 'Budget To', type: 'number', sortable: true },
+        { key: 'phone', label: 'Phone', sortable: true },
+        { key: 'active_status', label: 'Active Status', sortable: true },
         { key: 'created_at', label: 'Date', type: 'date', sortable: true },
     ];
 
@@ -53,16 +54,16 @@ export default function Index({ tenders }: { tenders: Tender[] }) {
                         columns={columns}
                         resourceName="Tenders"
                         singularName="Tender"
-                        routeName="admin.tenders.index"
                         filters={filters}
-                        canViewResource={false}
+                        canViewResource={true}
                         canCreateResource={true}
                         canEditResource={false}
-                        canDeleteResource={true}
+                        canDeleteResource={false}
                         icon={Building2}
+                        routeName="admin.tenders.index"
                         viewRoute={'admin.tenders.show'}
                         createRoute=""
-                        deleteRoute={'admin.tenders.destroy'}
+                        deleteRoute=""
                         isCreateNew={false}
                         onDelete={handleDelete}
                     />

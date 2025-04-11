@@ -84,9 +84,11 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::controller(TenderController::class)->group(function () {
         Route::group(['prefix' => 'tenders'], function () {
             Route::post('store', 'store');
-            Route::get('{id}', 'show');
-            Route::put('update/{id}', 'update');
-            Route::delete('delete/{id}', 'delete');
+            Route::get('{tender}', 'show');
+            Route::post('update/{tender}', 'update');
+            Route::delete('delete/{tender}', 'delete');
+            Route::delete('{tender}/images/{mediaId}', 'removeImage');
+            Route::post('{tender}/active-status', 'activeStatus');
         });
     });
 
@@ -100,7 +102,7 @@ Route::group(['middleware' => ['auth:api']], function () {
             Route::get('/{product}/variation-setup',  'getProductVariations');
             Route::post('/{product}/variationUpdate',  'updateProductVariations');
             Route::get('{product}', 'show');
-            Route::put('update/{product}', 'update');
+            Route::post('update/{product}', 'update');
             Route::delete('delete/{product}', 'delete');
         });
     });

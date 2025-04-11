@@ -15,6 +15,9 @@ class ReviewController extends ApiController
 {
     /**
      * Add a review for a product.
+     *
+     * @param StoreReviewRequest $request
+     * @return JsonResponse
      */
     public function store(StoreReviewRequest $request): JsonResponse
     {
@@ -39,6 +42,9 @@ class ReviewController extends ApiController
 
     /**
      * Delete a review.
+     *
+     * @param Review $review
+     * @return JsonResponse
      */
     public function destroy(Review $review): JsonResponse
     {
@@ -50,7 +56,10 @@ class ReviewController extends ApiController
     }
 
     /**
-     * Approve/Disapprove a review.
+     * Approve a review.
+     *
+     * @param Review $review
+     * @return JsonResponse
      */
     public function approve(Review $review): JsonResponse
     {
@@ -67,6 +76,8 @@ class ReviewController extends ApiController
 
     /**
      * List all reviews for products owned by the authenticated user.
+     *
+     * @return JsonResponse
      */
     public function myReviews(): JsonResponse
     {
@@ -78,6 +89,13 @@ class ReviewController extends ApiController
         return response()->json(ReviewResource::collection($reviews), 200);
     }
 
+    /**
+     * Reply to a review.
+     *
+     * @param ReviewAnswerRequest $request
+     * @param Review $review
+     * @return JsonResponse
+     */
     public function reply(ReviewAnswerRequest $request, Review $review): JsonResponse
     {
         if ($review->product->user_id !== Auth::id()) {

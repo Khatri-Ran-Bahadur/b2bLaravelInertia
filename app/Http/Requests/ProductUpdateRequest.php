@@ -23,15 +23,21 @@ class ProductUpdateRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:2000',
-            'slug' => 'required|string|max:2000|unique:products,slug',
+            'brand' => 'nullable|string|max:2000',
             'description' => 'nullable|string',
-            'company_id' => 'required|exists:companies,id',
             'category_id' => 'required|exists:categories,id',
-            'price' => 'required|numeric|between:0,999999.9999',
-            'status' => 'required|string|in:active,inactive',
-            'quantity' => 'nullable|string',
-            'created_by' => 'required|exists:users,id',
-            'updated_by' => 'required|exists:users,id',
+            'status' => 'required|string|in:draft,published,archived',
+            'price' => 'required|numeric|min:0',
+            'quantity' => 'nullable|numeric|min:0',
+            'is_available' => 'boolean',
+            'dimention' => 'nullable|string|max:255',
+            'weight' => 'nullable|string|max:255',
+            'country_of_origin' => 'nullable|string|max:255',
+            'search_keywords' => 'nullable|string|max:255',
+            'search_keywords_2' => 'nullable|string|max:255',
+            'material' => 'nullable|string|max:255',
+            'images' => 'nullable|array',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ];
     }
 }

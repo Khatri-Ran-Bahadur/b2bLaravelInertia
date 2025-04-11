@@ -7,18 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
+use Illuminate\Support\Str;
 
-/**
- * @OA\Schema(
- *     schema="User",
- *     type="object",
- *     @OA\Property(property="id", type="integer", example=1),
- *     @OA\Property(property="name", type="string", example="John Doe"),
- *     @OA\Property(property="email", type="string", example="john@example.com"),
- *     @OA\Property(property="created_at", type="string", format="date-time", example="2024-01-01T00:00:00Z"),
- *     @OA\Property(property="updated_at", type="string", format="date-time", example="2024-01-01T00:00:00Z")
- * )
- */
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
@@ -30,11 +20,21 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
-        'phone',
+        'first_name',
+        'last_name',
         'email',
         'password',
-        'user_role'
+        'user_role',
+        'status',
+        'fcm_token',
+        'firebase_id',
+        'google_id',
+        'apple_id',
+        'image',
+        'username',
+        'phone',
+        'email_verified_at',
+        'phone_verified_at',
     ];
 
     /**
@@ -52,20 +52,83 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
-    protected function casts(): array
-    {
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'phone_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
 
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($user) {
+            // Set temporary username as user ID
+            $user->username = 'user_' . $user->id;
+        });
+
+        static::updating(function ($user) {
+            // Generate proper username only when profile is being updated
+            if ($user->isDirty(['first_name', 'last_name']) && !empty($user->first_name)) {
+                $user->username = $user->generateUniqueUsername();
+            }
+        });
     }
 
+    protected function generateUniqueUsername()
+    {
+        // Get the first name and last name, use empty string if null
+        $firstName = $this->first_name ?? '';
+        $lastName = $this->last_name ?? '';
+
+        // Generate base username
+        $baseUsername = Str::lower(
+            Str::ascii($firstName) .
+                ($lastName ? '-' . Str::ascii($lastName) : '')
+        );
+
+        // Remove any special characters and spaces
+        $baseUsername = preg_replace('/[^a-z0-9.]/', '', $baseUsername);
+
+        // If base username is empty, use a fallback
+        if (empty($baseUsername)) {
+            $baseUsername = 'user_' . $this->id;
+        }
+
+        $username = $baseUsername;
+        $count = 1;
+
+        // Keep trying until we find a unique username
+        while (static::where('username', $username)
+            ->where('id', '!=', $this->id)
+            ->exists()
+        ) {
+            $username = $baseUsername . $count;
+            $count++;
+        }
+
+        return $username;
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'username';
+    }
 
     public function companies()
     {
         return $this->belongsToMany(Company::class, 'company_users')
             ->withPivot(['role', 'status'])
             ->withTimestamps();
+    }
+
+    /**
+     * Get the user's full name.
+     *
+     * @return string
+     */
+    public function getNameAttribute()
+    {
+        return trim($this->first_name . ' ' . $this->last_name);
     }
 }

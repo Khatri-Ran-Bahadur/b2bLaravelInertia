@@ -5,10 +5,11 @@ namespace App\Models;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class TenderCategory extends Model
 {
-    use HasSlug;
+    use HasSlug, HasFactory;
 
     protected $fillable = [
         'name',

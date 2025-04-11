@@ -16,6 +16,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 
 class UserController extends ApiController
@@ -35,36 +38,20 @@ class UserController extends ApiController
     }
 
     /**
-     * @OA\Get(
-     *     path="/api/users/info",
-     *     summary="Get authenticated user info",
-     *     operationId="getUserInfo",
-     *     tags={"User"},
-     *     security={{"passport":{}}}, 
-     *     @OA\Response(
-     *         response=200,
-     *         description="User information retrieved successfully",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string", example="User information retrieved successfully"),
-     *             @OA\Property(property="data", ref="#/components/schemas/User")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="Unauthorized",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Unauthenticated")
-     *         )
-     *     )
-     * )
+     * Get authenticated user info
+     *
+     * @return JsonResponse
      */
     public function info(): JsonResponse
     {
-        $data = new UserResource(auth()->user());
-        return $this->detailRespond($data);
+        return $this->detailRespond(new UserResource(auth()->user()));
     }
 
+    /**
+     * Verify user
+     *
+     * @return JsonResponse
+     */
     public function verify()
     {
         $user = auth()->user();
@@ -74,6 +61,12 @@ class UserController extends ApiController
         return $this->respondSuccess(__("messages.profile_verified"));
     }
 
+    /**
+     * Update FCM token
+     *
+     * @param FcmTokenUpdateRequest $request
+     * @return JsonResponse
+     */
     public function fcm_token_update(FcmTokenUpdateRequest $request): JsonResponse
     {
         auth()->user()->update([
@@ -83,31 +76,44 @@ class UserController extends ApiController
         return $this->respondSuccess(__("messages.fcm_token_updated"));
     }
 
-    public function update(ProfileUpdateRequest $request): JsonResponse
+    /**
+     * Update user profile
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function update(Request $request): JsonResponse
     {
-        $user = $this->user->find(auth()->user()->id);
-        $path = $user->image;
-        if ($request->hasFile('image')) {
-            if ($path) {
-                ImageUploader::delete($path);
-            }
-            $path = ImageUploader::upload($request->file('image'), 'profile');
+        $validator = Validator::make($request->all(), [
+            'first_name' => 'sometimes|string|max:255',
+            'last_name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|email|unique:users,email,' . auth()->id(),
+            'phone' => 'sometimes|string|unique:users,phone,' . auth()->id(),
+            'password' => 'sometimes|string|min:6',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->respondValidationError($validator->errors());
         }
-        try {
-            $user->update([
-                'first_name' => $request->first_name,
-                'last_name' => $request->last_name,
-                'email' => $request->email,
-                'registered' => 1,
-                'phone' => $request->phone,
-                'image' => $path
-            ]);
-            return $this->respondSuccess(__("messages.profile_updated"));
-        } catch (\Exception $exception) {
-            return $this->respondWithException($exception->getMessage(), $exception->getFile(), $exception->getLine());
+
+        $user = auth()->user();
+        $data = $validator->validated();
+
+        if (isset($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
         }
+
+        $user->update($data);
+
+        return $this->detailRespond(new UserResource($user));
     }
 
+    /**
+     * Update user profile image
+     *
+     * @param UploadImageRequest $request
+     * @return JsonResponse
+     */
     public function update_image(UploadImageRequest $request)
     {
         $user = $this->user->find(auth()->user()->id);
@@ -121,6 +127,13 @@ class UserController extends ApiController
         }
         return $this->respondSuccess(__("messages.profile_image_updated"));
     }
+
+    /**
+     * Change user password
+     *
+     * @param PasswordChangeRequest $request
+     * @return JsonResponse
+     */
     public function change_password(PasswordChangeRequest $request): JsonResponse
     {
         auth()->user()->update([
@@ -130,6 +143,11 @@ class UserController extends ApiController
         return $this->respondSuccess(__("messages.change_password_message"));
     }
 
+    /**
+     * Delete user account
+     *
+     * @return JsonResponse
+     */
     public function delete()
     {
         try {

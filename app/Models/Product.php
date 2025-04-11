@@ -88,6 +88,11 @@ class Product extends Model implements HasMedia
         return $this->hasMany(ProductVariation::class);
     }
 
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
 
     public function getPriceForOptions($optionIds = [])
     {
